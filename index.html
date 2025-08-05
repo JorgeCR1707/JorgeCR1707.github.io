@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alarma Casa</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    .estado {
+      margin: 20px 0;
+      font-size: 1.2em;
+    }
+    .botones button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    .botones button:hover {
+      background-color: #0056b3;
+    }
+    .zonas {
+      margin-top: 20px;
+    }
+    .zonas label {
+      display: block;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔐 Sistema de Alarma</h1>
+
+  <div class="estado">
+    <p><strong>Sistema:</strong> <span id="sistema">Desarmado</span></p>
+    <p><strong>Sirena:</strong> <span id="sirena">Apagada</span></p>
+    <p><strong>Logging:</strong> <span id="log">Activado</span></p>
+    <p><strong>Zonas activas:</strong> <span id="zonas">Ninguna</span></p>
+  </div>
+
+  <div class="botones">
+    <button onclick="actualizar('armar')">Armar</button>
+    <button onclick="actualizar('desarmar')">Desarmar</button>
+    <button onclick="actualizar('sirena_on')">Sirena ON</button>
+    <button onclick="actualizar('sirena_off')">Sirena OFF</button>
+    <button onclick="actualizar('activar_log')">Activar Log</button>
+    <button onclick="actualizar('desactivar_log')">Desactivar Log</button>
+  </div>
+
+  <div class="zonas">
+    <h3>Zonas</h3>
+    <label><input type="checkbox" value="1" onchange="toggleZona(this)"> Zona 1</label>
+    <label><input type="checkbox" value="2" onchange="toggleZona(this)"> Zona 2</label>
+    <label><input type="checkbox" value="3" onchange="toggleZona(this)"> Zona 3</label>
+    <label><input type="checkbox" value="4" onchange="toggleZona(this)"> Zona 4</label>
+  </div>
+
+  <script>
+    const estado = {
+      sistema: "Desarmado",
+      sirena: "Apagada",
+      log: true,
+      zonas: []
+    };
+
+    function actualizar(accion) {
+      switch (accion) {
+        case "armar":
+          estado.sistema = "Armado";
+          break;
+        case "desarmar":
+          estado.sistema = "Desarmado";
+          break;
+        case "sirena_on":
+          estado.sirena = "Encendida";
+          break;
+        case "sirena_off":
+          estado.sirena = "Apagada";
+          break;
+        case "activar_log":
+          estado.log = true;
+          break;
+        case "desactivar_log":
+          estado.log = false;
+          break;
+      }
+      enviarEstado();
+      render();
+    }
+
+    function toggleZona(checkbox) {
+      const zona = checkbox.value;
+      if (checkbox.checked) {
+        estado.zonas.push(zona);
+      } else {
+        estado.zonas = estado.zonas.filter(z => z !== zona);
+      }
+      enviarEstado();
+      render();
+    }
+
+    function render() {
+      document.getElementById("sistema").textContent = estado.sistema;
+      document.getElementById("sirena").textContent = estado.sirena;
+      document.getElementById("log").textContent = estado.log ? "Activado" : "Desactivado";
+      document.getElementById("zonas").textContent = estado.zonas.length > 0 ? estado.zonas.join(", ") : "Ninguna";
+    }
+
+    function enviarEstado() {
+      const payload = JSON.stringify(estado);
+      if (window.Telegram && Telegram.WebApp) {
+        Telegram.WebApp.sendData(payload);
+      } else {
+        console.log("DEBUG - Estado enviado:", payload);
+      }
+    }
+
+    Telegram.WebApp.ready();
+    render();
+  </script>
+</body>
+</html>
