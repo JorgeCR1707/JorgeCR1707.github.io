@@ -119,7 +119,20 @@
     }
 
     function enviarEstado() {
-      const payload = JSON.stringify(estado);
+      const zonasBooleanas = [
+        estado.zonas.includes("Entrada"),
+        estado.zonas.includes("Cocina"),
+        estado.zonas.includes("Sala"),
+        estado.zonas.includes("Balcon")
+      ];
+
+      const payload = JSON.stringify({
+        sistema: estado.sistema,
+        sirena: estado.sirena,
+        log: estado.log,
+        zonas: zonasBooleanas
+      });
+
       if (window.Telegram && Telegram.WebApp) {
         Telegram.WebApp.sendData(payload);
       } else {
