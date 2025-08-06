@@ -68,80 +68,82 @@
   </div>
 
   <script>
-    const estado = {
-      sistema: "Desarmado",
-      sirena: "Apagada",
-      log: true,
-      zonas: []
-    };
+  const estado = {
+    sistema: "Desarmado",
+    sirena: "Apagada",
+    log: true,
+    zonas: []
+  };
 
-    function actualizar(accion) {
-      switch (accion) {
-        case "armar":
-          estado.sistema = "Armado";
-          break;
-        case "desarmar":
-          estado.sistema = "Desarmado";
-          break;
-        case "sirena_on":
-          estado.sirena = "Encendida";
-          break;
-        case "sirena_off":
-          estado.sirena = "Apagada";
-          break;
-        case "activar_log":
-          estado.log = true;
-          break;
-        case "desactivar_log":
-          estado.log = false;
-          break;
-      }
-      enviarEstado();
-      render();
+  function actualizar(accion) {
+    switch (accion) {
+      case "armar":
+        estado.sistema = "Armado";
+        break;
+      case "desarmar":
+        estado.sistema = "Desarmado";
+        break;
+      case "sirena_on":
+        estado.sirena = "Encendida";
+        break;
+      case "sirena_off":
+        estado.sirena = "Apagada";
+        break;
+      case "activar_log":
+        estado.log = true;
+        break;
+      case "desactivar_log":
+        estado.log = false;
+        break;
     }
-
-    function toggleZona(checkbox) {
-      const zona = checkbox.value;
-      if (checkbox.checked) {
-        estado.zonas.push(zona);
-      } else {
-        estado.zonas = estado.zonas.filter(z => z !== zona);
-      }
-      enviarEstado();
-      render();
-    }
-
-    function render() {
-      document.getElementById("sistema").textContent = estado.sistema;
-      document.getElementById("sirena").textContent = estado.sirena;
-      document.getElementById("log").textContent = estado.log ? "Activado" : "Desactivado";
-      document.getElementById("zonas").textContent = estado.zonas.length > 0 ? estado.zonas.join(", ") : "Ninguna";
-    }
-
-    function enviarEstado() {
-      const zonasBooleanas = [
-        estado.zonas.includes("Entrada"),
-        estado.zonas.includes("Cocina"),
-        estado.zonas.includes("Sala"),
-        estado.zonas.includes("Balcon")
-      ];
-
-      const payload = JSON.stringify({
-        sistema: estado.sistema,
-        sirena: estado.sirena,
-        log: estado.log,
-        zonas: zonasBooleanas
-      });
-
-      if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.sendData(payload);
-      } else {
-        console.log("DEBUG - Estado enviado:", payload);
-      }
-    }
-
-    Telegram.WebApp.ready();
+    enviarEstado();
     render();
+  }
+
+  function toggleZona(checkbox) {
+    const zona = checkbox.value;
+    if (checkbox.checked) {
+      estado.zonas.push(zona);
+    } else {
+      estado.zonas = estado.zonas.filter(z => z !== zona);
+    }
+    enviarEstado();
+    render();
+  }
+
+  function render() {
+    document.getElementById("sistema").textContent = estado.sistema;
+    document.getElementById("sirena").textContent = estado.sirena;
+    document.getElementById("log").textContent = estado.log ? "Activado" : "Desactivado";
+    document.getElementById("zonas").textContent = estado.zonas.length > 0 ? estado.zonas.join(", ") : "Ninguna";
+  }
+
+  function enviarEstado() {
+    const zonasBooleanas = [
+      estado.zonas.includes("Entrada"),
+      estado.zonas.includes("Cocina"),
+      estado.zonas.includes("Sala"),
+      estado.zonas.includes("Balcon")
+    ];
+
+    const payload = JSON.stringify({
+      sistema: estado.sistema,
+      sirena: estado.sirena,
+      log: estado.log,
+      zonas: zonasBooleanas
+    });
+
+    if (window.Telegram && Telegram.WebApp) {
+      console.log("Enviando a Telegram.WebApp.sendData:", payload);
+      Telegram.WebApp.sendData(payload);
+    } else {
+      console.log("DEBUG - Estado enviado (no Telegram):", payload);
+    }
+  }
+
+  Telegram.WebApp.ready();
+  console.log("Mini app Telegram lista");
+  render();
   </script>
 </body>
 </html>
